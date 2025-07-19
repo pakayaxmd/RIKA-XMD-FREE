@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 const RENDER_API_KEY = process.env.RENDER_API_KEY;
-const GITHUB_REPO = "pakebija/RIKA-XMD-V2";
+const GITHUB_REPO = "pakebija/RIKA-XMD-v2";
 
 app.post("/api/deploy", async (req, res) => {
   const { session_id } = req.body;
