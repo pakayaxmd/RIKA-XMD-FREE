@@ -6,82 +6,183 @@
   <title>🚀 RIKA XMD - Auto Bot Deploy</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #00ffcc;
       font-family: 'Orbitron', sans-serif;
+      color: #ffffff;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      flex-direction: column;
       text-align: center;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #1a1a40, #2b2b80, #1a2a4f, #281c3e);
+      background-size: 400% 400%;
+      animation: bgGradient 10s ease infinite;
+      position: relative;
     }
+
+    @keyframes bgGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px #00ffe0;
+      font-size: 2.8em;
+      margin-bottom: 25px;
+      text-shadow: 0 0 15px #ff00cc, 0 0 30px #00ffe0;
+      z-index: 2;
     }
+
     form {
       background: rgba(0, 0, 0, 0.4);
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #00ffe0;
-      max-width: 400px;
-      width: 100%;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 0 30px #00ffe0;
+      width: 90%;
+      max-width: 420px;
+      border: 2px solid #ff00cc;
+      backdrop-filter: blur(12px);
+      z-index: 2;
+      animation: glowPulse 5s infinite ease-in-out;
     }
+
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 20px #ff00cc; }
+      50% { box-shadow: 0 0 35px #00ffe0; }
+      100% { box-shadow: 0 0 20px #ff00cc; }
+    }
+
     input, button {
       width: 100%;
-      padding: 12px;
-      margin: 10px 0;
+      padding: 14px;
+      margin: 12px 0;
       font-size: 1em;
-      border-radius: 6px;
+      border-radius: 10px;
       border: none;
       outline: none;
+      font-family: 'Orbitron', sans-serif;
     }
+
     input {
-      background-color: #111;
-      color: #00ffcc;
-      border: 1px solid #00ffcc;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      border: 2px solid #00ffe0;
+      box-shadow: 0 0 15px #00ffe0 inset;
+      transition: 0.3s ease;
     }
+
+    input:focus {
+      border-color: #ff00cc;
+      box-shadow: 0 0 20px #ff00cc inset;
+    }
+
     button {
-      background-color: #00ffcc;
+      background: linear-gradient(135deg, #ff00cc, #00ffe0);
       color: #000;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      transition: 0.3s ease;
     }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.2), transparent);
+      transform: skewX(45deg);
+      transition: 0.5s;
+      z-index: -1;
+    }
+
     button:hover {
-      background-color: #00e6b8;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ff00cc;
     }
+
+    button:hover::before {
+      left: 100%;
+    }
+
     #responseMsg {
-      margin-top: 15px;
-      font-size: 1em;
-      color: #fff;
+      margin-top: 18px;
+      font-size: 1.1em;
+      color: #ffffff;
+      text-shadow: 0 0 8px #00ffe0;
+    }
+
+    /* Neon balls / particles */
+    .neon-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ball {
+      position: absolute;
+      bottom: -50px;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle, #00ffe0 0%, #ff00cc 70%, transparent 100%);
+      border-radius: 50%;
+      filter: blur(2px);
+      animation: rise linear forwards;
+    }
+
+    @keyframes rise {
+      0% { transform: translateY(0) scale(0.8); opacity: 0.7; }
+      100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <h1>🔗 RIKA XMD - Bot Auto Deploy</h1>
+
+  <!-- Neon glowing particles -->
+  <div class="neon-particles" id="particles"></div>
+
+  <h1>🚀 RIKA XMD - Auto Bot Deploy</h1>
   <form id="deployForm">
-    <input type="text" name="session_id" placeholder="Paste your SESSION_ID here..." required />
+    <input type="text" name="session_id" placeholder="🔐 Paste your SESSION_ID here..." required />
     <button type="submit">🚀 Deploy My Bot</button>
   </form>
   <p id="responseMsg"></p>
 
   <script>
+    // Neon balls animation
+    const particleContainer = document.getElementById('particles');
+    function createBall() {
+      const ball = document.createElement('div');
+      ball.classList.add('ball');
+      ball.style.left = Math.random() * 100 + 'vw';
+      ball.style.animationDuration = (3 + Math.random() * 3) + 's';
+      particleContainer.appendChild(ball);
+      setTimeout(() => ball.remove(), 7000);
+    }
+    setInterval(createBall, 180); // smoother
+
+    // Form submission
     document.getElementById("deployForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const session_id = e.target.session_id.value;
+      const session_id = e.target.session_id.value.trim();
+      if (!session_id) return;
       const res = await fetch("/api/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id }),
       });
       const data = await res.json();
-      document.getElementById("responseMsg").textContent = data.message || data.error;
+      document.getElementById("responseMsg").textContent = data.message || data.error || "⚠️ Unknown response.";
     });
   </script>
 </body>
